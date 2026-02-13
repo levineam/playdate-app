@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "Playdate",
+    "slug": "playdate-mobile",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.playdate.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.playdate.mobile"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
