@@ -16,14 +16,16 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.playdate.mobile"
+      "bundleIdentifier": "com.playdate.mobile",
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.playdate.mobile"
+      "package": "com.playdate.mobile",
+      "jsEngine": "jsc"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -32,7 +34,13 @@
       "typedRoutes": true
     },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-router",
+        {
+          "root": "./app"
+        }
+      ]
     ]
   }
 }
