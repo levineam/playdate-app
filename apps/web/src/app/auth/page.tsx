@@ -1,6 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+
+// Force dynamic rendering to avoid build-time Supabase initialization issues
+export const dynamic = 'force-dynamic'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,8 +15,17 @@ export default function AuthPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const isSupabaseConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
+    process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co'
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!isSupabaseConfigured) {
+      toast.error('Authentication is not configured. Please contact support.')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -60,8 +72,12 @@ export default function AuthPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || !email}>
-              {isLoading ? 'Sending...' : 'Send Magic Link'}
+            <Button type="submit" className="w-full" disabled={isLoading || !email || !isSupabaseConfigured}>
+              {!isSupabaseConfigured 
+                ? 'Authentication Not Configured' 
+                : isLoading 
+                ? 'Sending...' 
+                : 'Send Magic Link'}
             </Button>
           </form>
           <p className="mt-4 text-sm text-gray-600 text-center">
