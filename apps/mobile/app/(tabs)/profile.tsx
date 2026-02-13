@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { createSupabaseClient, authHelpers } from '@playdate/supabase';
+// TODO: Fix supabase import - '@playdate/supabase' package doesn't exist
+// import { createSupabaseClient, authHelpers } from '@playdate/supabase';
 
 // TODO: Move to environment variables
 const SUPABASE_URL = 'your-supabase-url';
@@ -11,8 +12,9 @@ export default function Profile() {
 
   const handleSignOut = async () => {
     try {
-      const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      await authHelpers.signOut(supabase);
+      // TODO: Implement supabase sign out once '@playdate/supabase' package is created
+      // const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      // await authHelpers.signOut(supabase);
       router.replace('/(auth)');
     } catch (error) {
       Alert.alert('Error', 'Failed to sign out. Please try again.');
