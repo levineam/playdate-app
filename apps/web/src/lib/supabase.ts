@@ -47,7 +47,7 @@ export type Database = {
           primary_contact_phone: string | null
           city: string | null
           bio: string | null
-          preferences: any
+          preferences: Record<string, unknown>
           created_at: string
           updated_at: string
         }
@@ -59,7 +59,7 @@ export type Database = {
           primary_contact_phone?: string | null
           city?: string | null
           bio?: string | null
-          preferences?: any
+          preferences?: Record<string, unknown>
           created_at?: string
           updated_at?: string
         }
@@ -71,7 +71,7 @@ export type Database = {
           primary_contact_phone?: string | null
           city?: string | null
           bio?: string | null
-          preferences?: any
+          preferences?: Record<string, unknown>
           created_at?: string
           updated_at?: string
         }

@@ -42,7 +42,7 @@ export default function AuthPage() {
         toast.success('Magic link sent! Check your email.')
         setEmail('')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -55,7 +55,7 @@ export default function AuthPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome to Playdate</CardTitle>
           <CardDescription>
-            Sign in to coordinate playdates with your children's friends
+            Sign in to coordinate playdates with your children&rsquo;s friends
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -81,7 +81,7 @@ export default function AuthPage() {
             </Button>
           </form>
           <p className="mt-4 text-sm text-gray-600 text-center">
-            We'll send you a secure link to sign in. No passwords needed.
+            We&rsquo;ll send you a secure link to sign in. No passwords needed.
           </p>
         </CardContent>
       </Card>
