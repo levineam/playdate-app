@@ -4,6 +4,18 @@ const PLACEHOLDER_SUPABASE_ANON_KEY = 'placeholder-key'
 export const PREVIEW_AUTH_COOKIE_NAME = 'playdate_preview_mode'
 export const PREVIEW_AUTH_COOKIE_VALUE = 'enabled'
 
+function isVercelProductionRuntime(env: NodeJS.ProcessEnv = process.env) {
+  return env.VERCEL_ENV === 'production'
+}
+
+function isVercelPreviewRuntime(env: NodeJS.ProcessEnv = process.env) {
+  return env.VERCEL_ENV === 'preview'
+}
+
+function isNonVercelRuntime(env: NodeJS.ProcessEnv = process.env) {
+  return !env.VERCEL_ENV
+}
+
 export function hasSupabaseAuthConfig(env: NodeJS.ProcessEnv = process.env) {
   const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -17,7 +29,7 @@ export function hasSupabaseAuthConfig(env: NodeJS.ProcessEnv = process.env) {
 }
 
 export function isPreviewAuthBypassEnabled(env: NodeJS.ProcessEnv = process.env) {
-  if (hasSupabaseAuthConfig(env)) {
+  if (hasSupabaseAuthConfig(env) || isVercelProductionRuntime(env)) {
     return false
   }
 
@@ -29,5 +41,5 @@ export function isPreviewAuthBypassEnabled(env: NodeJS.ProcessEnv = process.env)
     return true
   }
 
-  return env.VERCEL_ENV !== 'production'
+  return isVercelPreviewRuntime(env) || isNonVercelRuntime(env)
 }
