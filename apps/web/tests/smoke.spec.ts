@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 const NEXT_STARTER_STRING = 'To get started, edit the page.tsx file.'
+const DASHBOARD_PLACEHOLDER = 'Temporary dashboard placeholder for the preview-auth rollout.'
 
 test.describe('Homepage smoke tests', () => {
   test('homepage loads and shows Playdate branding (not Next starter)', async ({ page }) => {
@@ -39,6 +40,9 @@ test.describe('Homepage smoke tests', () => {
 
     await expect(page).toHaveURL(/\/dashboard\?mode=preview$/)
     await expect(page.getByTestId('preview-mode-banner')).toContainText(/preview mode active/i)
+    await expect(page.getByRole('heading', { name: /playdate dashboard/i })).toBeVisible()
+    await expect(page.locator('body')).not.toContainText(DASHBOARD_PLACEHOLDER)
+    await expect(page.getByRole('button', { name: /save draft playdate/i })).toBeVisible()
   })
 
   test('dashboard redirects to auth when preview session is missing', async ({ page }) => {
