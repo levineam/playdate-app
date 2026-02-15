@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -47,7 +47,7 @@ export type Database = {
           primary_contact_phone: string | null
           city: string | null
           bio: string | null
-          preferences: any
+          preferences: Record<string, unknown>
           created_at: string
           updated_at: string
         }
@@ -59,7 +59,7 @@ export type Database = {
           primary_contact_phone?: string | null
           city?: string | null
           bio?: string | null
-          preferences?: any
+          preferences?: Record<string, unknown>
           created_at?: string
           updated_at?: string
         }
@@ -71,7 +71,7 @@ export type Database = {
           primary_contact_phone?: string | null
           city?: string | null
           bio?: string | null
-          preferences?: any
+          preferences?: Record<string, unknown>
           created_at?: string
           updated_at?: string
         }

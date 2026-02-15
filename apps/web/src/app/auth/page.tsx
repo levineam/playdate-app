@@ -1,7 +1,12 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
+
+// Force dynamic rendering to avoid build-time Supabase initialization issues
+export const dynamic = 'force-dynamic'
 import { supabase } from '@/lib/supabase'
+import { hasSupabaseAuthConfig, isPreviewAuthBypassEnabled } from '@/lib/auth-mode'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,8 +17,17 @@ export default function AuthPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  const isSupabaseConfigured = hasSupabaseAuthConfig()
+  const canUsePreviewMode = !isSupabaseConfigured && isPreviewAuthBypassEnabled()
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!isSupabaseConfigured) {
+      toast.error('Authentication is not configured. Please contact support.')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -30,7 +44,7 @@ export default function AuthPage() {
         toast.success('Magic link sent! Check your email.')
         setEmail('')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -43,7 +57,7 @@ export default function AuthPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Welcome to Playdate</CardTitle>
           <CardDescription>
-            Sign in to coordinate playdates with your children's friends
+            Sign in to coordinate playdates with your children&rsquo;s friends
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -60,12 +74,36 @@ export default function AuthPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || !email}>
+            <Button
+              type="submit"
+              className={`w-full ${!isSupabaseConfigured ? 'disabled:opacity-100' : ''}`}
+              disabled={isLoading || !email || !isSupabaseConfigured}
+              aria-describedby={!isSupabaseConfigured ? 'auth-config-note' : undefined}
+            >
               {isLoading ? 'Sending...' : 'Send Magic Link'}
             </Button>
           </form>
+
+          {!isSupabaseConfigured && (
+            <div className="mt-3 space-y-3">
+              <p id="auth-config-note" className="text-sm text-amber-700 text-center" role="status">
+                Magic-link sign-in is temporarily unavailable in this preview environment.
+              </p>
+
+              {canUsePreviewMode ? (
+                <Button asChild variant="secondary" className="w-full" data-testid="continue-preview-mode">
+                  <Link href="/auth/preview">Continue in preview mode</Link>
+                </Button>
+              ) : (
+                <p className="text-sm text-zinc-600 text-center">
+                  Preview mode is disabled for this deployment.
+                </p>
+              )}
+            </div>
+          )}
+
           <p className="mt-4 text-sm text-gray-600 text-center">
-            We'll send you a secure link to sign in. No passwords needed.
+            We&rsquo;ll send you a secure link to sign in. No passwords needed.
           </p>
         </CardContent>
       </Card>
