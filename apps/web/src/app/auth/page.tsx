@@ -72,14 +72,20 @@ export default function AuthPage() {
                 disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading || !email || !isSupabaseConfigured}>
-              {!isSupabaseConfigured 
-                ? 'Authentication Not Configured' 
-                : isLoading 
-                ? 'Sending...' 
-                : 'Send Magic Link'}
+            <Button
+              type="submit"
+              className={`w-full ${!isSupabaseConfigured ? 'disabled:opacity-100' : ''}`}
+              disabled={isLoading || !email || !isSupabaseConfigured}
+              aria-describedby={!isSupabaseConfigured ? 'auth-config-note' : undefined}
+            >
+              {isLoading ? 'Sending...' : 'Send Magic Link'}
             </Button>
           </form>
+          {!isSupabaseConfigured && (
+            <p id="auth-config-note" className="mt-3 text-sm text-amber-700 text-center" role="status">
+              Magic-link sign-in is temporarily unavailable in this preview environment.
+            </p>
+          )}
           <p className="mt-4 text-sm text-gray-600 text-center">
             We&rsquo;ll send you a secure link to sign in. No passwords needed.
           </p>

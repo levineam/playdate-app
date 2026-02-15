@@ -25,4 +25,15 @@ test.describe('Homepage smoke tests', () => {
     await expect(page).toHaveURL(/\/auth$/);
     await expect(page.locator('body')).toContainText(/Welcome to Playdate/i);
   });
+
+  test('auth page always shows the magic-link send action', async ({ page }) => {
+    await page.goto('/auth');
+
+    const magicLinkButton = page.getByRole('button', { name: /send magic link/i });
+    await expect(magicLinkButton).toBeVisible();
+
+    // In preview/test environments without Supabase env vars we keep the action visible
+    // and show a clear status message explaining why sending is unavailable.
+    await expect(page.getByText(/temporarily unavailable in this preview environment/i)).toBeVisible();
+  });
 });
