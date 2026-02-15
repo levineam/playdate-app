@@ -40,6 +40,7 @@ export interface DashboardMatch {
 export interface DashboardSeed {
   familyName: string
   connectedFamilies: number
+  connectedFamilyNames: string[]
   upcomingPlaydates: DashboardPlaydate[]
   inviteQueue: DashboardInvite[]
   availability: DashboardAvailability[]
@@ -49,6 +50,14 @@ export interface DashboardSeed {
 export const previewDashboardSeed: DashboardSeed = {
   familyName: 'The Levine Family',
   connectedFamilies: 6,
+  connectedFamilyNames: [
+    'The Patel Family',
+    'The Nguyen Family',
+    'The Carter Family',
+    'The Rodriguez Family',
+    'The Kim Family',
+    'The Brooks Family',
+  ],
   upcomingPlaydates: [
     {
       id: 'pd-1',

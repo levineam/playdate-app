@@ -1,118 +1,110 @@
-# Playdate MVP Audit + Execution Plan (Web + Mobile)
+# Playdate MVP Audit + Execution Plan (Availability-First)
 
 _Last updated: 2026-02-15_
 
-## 1) Why expectations mismatched
+## 1) Decision snapshot
 
-The preview branch focused on **auth survivability for Vercel previews** (magic-link fallback + preview bypass). During that rollout, `/dashboard` was intentionally left as a temporary placeholder (`"Temporary dashboard placeholder for the preview-auth rollout"`).
+**Product decision:** make the first meaningful action in the web MVP **“We’re available for a playdate”** and optimize the path for speed + safety.
 
-Result: auth paths worked, but the first post-login product surface did not represent the MVP.
-
----
-
-## 2) Current-state audit vs MVP scope
-
-### Intended MVP scope (inferred from schema + existing code)
-- Account/auth for parents
-- Family profile + children
-- Availability windows per child
-- Family connections
-- Playdate events + invites + responses
-- Notification feed
-- Web-first experience, mobile scaffold in parallel
-
-### Web app audit
-
-| Area | Status | Evidence | Gap |
-|---|---|---|---|
-| Landing + auth entry | ✅ Done | `src/app/page.tsx`, `src/app/auth/page.tsx` | None for MVP preview |
-| Preview auth resiliency | ✅ Done | `auth-mode.ts`, `/auth/preview`, callback guard | Needs real auth in production env |
-| Dashboard shell | ⚠️ Previously placeholder, now replaced | `src/app/dashboard/page.tsx` | Data still seeded for preview mode |
-| Scheduling workflow | 🟡 Partial | New dashboard planner draft workflow | Missing persistence + invite send flow |
-| Invite response flow | 🟡 Partial | New dashboard invite queue response controls | Missing server persistence |
-| Availability + match visibility | 🟡 Partial | New availability + suggested overlaps section | Missing algorithm-backed API integration |
-| API/data wiring | ❌ Not done | No web data access layer in routes/actions | Need Supabase-backed queries/mutations |
-
-### Mobile app audit
-
-| Area | Status | Evidence | Gap |
-|---|---|---|---|
-| Expo monorepo wiring | ✅ Baseline | `apps/mobile/package.json`, Expo config | Needs route/layout hardening |
-| Availability screen scaffold | 🟡 Placeholder | `app/(tabs)/availability.tsx` | No real data/CRUD |
-| Profile screen scaffold | 🟡 Placeholder | `app/(tabs)/profile.tsx` | Auth + profile wiring TODOs |
-| Auth/session integration | ❌ Not done | TODO comments in profile screen | Build shared client + secure session flow |
-
-### Backend/data audit
-
-| Area | Status | Evidence | Gap |
-|---|---|---|---|
-| Core schema + RLS | ✅ Strong foundation | `supabase/migrations/20260213095115_initial_schema.sql` | Need app-layer queries and mutation API |
-| Shared validation types | ✅ Baseline | `packages/shared-types/src/schemas.ts` | Extend schemas to exact DB shape alignment |
-| Read/write app services | ❌ Not done | No server actions/routes in web app | Implement MVP service layer |
+**Why now:** the app had solid scheduling/invite scaffolding, but the most common parent intent (quickly signaling availability) was not the primary entry action.
 
 ---
 
-## 3) Milestones and acceptance criteria
+## 2) Structured adversarial refinement (pre-implementation)
 
-## Milestone 0 — Preview no longer placeholder (completed in this run)
-**Goal:** User sees real product-oriented dashboard immediately after preview auth.
+### PM persona — goal clarity + success metrics
+- **Goal clarity:** parents want to notify trusted families with minimal effort when a window opens.
+- **Core job-to-be-done:** “I have a free window right now; help me find a playdate fast.”
+- **Success metrics (MVP):**
+  - Time-to-broadcast from dashboard load: **< 10 seconds**
+  - Availability action visible above fold on dashboard: **100%**
+  - Broadcast completion (preview workflow): **high completion, low abandonment**
 
-**Acceptance criteria**
-- `/dashboard` has no placeholder text
-- Shows: schedule, invite queue, availability, match suggestions, quick planner
-- Existing preview-auth smoke flow stays green
+### UX persona — fastest happy-path + friction audit
+- **Happy path:** open dashboard → tap primary CTA → confirm → broadcast sent.
+- **Friction removed:** no multi-field required form for default path.
+- **Optional depth:** details prompt is secondary and only shown on demand.
+- **UI placement:** availability action moved to top-priority hero card before planning widgets.
 
-## Milestone 1 — Persistent web MVP workflows
-**Goal:** Move dashboard from seeded preview UI to persisted data.
+### Safety/Privacy persona — abuse/spam/consent guardrails
+- **Audience clarity:** explicit statement that broadcasts go only to connected families.
+- **Consent boundary:** mention mutual connections as recipients.
+- **Anti-spam control:** cooldown between broadcasts.
+- **Accidental-send prevention:** confirmation step before dispatch.
 
-**Acceptance criteria**
-- Draft playdate creation writes to Supabase
-- Invite response updates persisted and reflected on reload
-- Availability windows read from DB and render correctly
-- Core dashboard queries protected by auth/RLS
+### Architect persona — implementation tradeoffs + data/API impact
+- **Tradeoff:** implement local state flow first (preview-safe) before backend persistence.
+- **Data model impact (future):** add `availability_broadcasts` entity with sender family, audience snapshot, optional details payload, and sent timestamp.
+- **API impact (future):** one mutation endpoint/server action for fast send + cooldown enforcement at server layer.
+- **Current scope:** keep seeded dashboard data and local broadcast log for reliable preview behavior.
 
-## Milestone 2 — Family + child profile management
-**Goal:** Enable profile completion and child management end-to-end.
-
-**Acceptance criteria**
-- Create/update family profile
-- Create/update/deactivate children
-- Validation + error states covered
-
-## Milestone 3 — Mobile parity for core flows
-**Goal:** Mobile supports at least read + lightweight update for profile/availability.
-
-**Acceptance criteria**
-- Mobile app routes/layout stable
-- Auth/session works in mobile
-- Availability and profile screens wired to backend
-
-## Milestone 4 — Reliability and release hardening
-**Goal:** Ship-ready quality gates and docs.
-
-**Acceptance criteria**
-- CI green for web/mobile on branch
-- Preview E2E includes happy path + guardrails
-- README + runbook updated for local + preview environments
+### QA persona — failure modes + edge cases
+- **Critical cases covered:**
+  - confirmation cancel path
+  - cooldown disables repeat send
+  - optional details rendered in history
+  - missing preview session still redirects to auth
+- **Regression risk controlled:** smoke tests now assert availability-first UI instead of just planner visibility.
 
 ---
 
-## 4) Prioritized backlog (next execution order)
+## 3) Synthesis + final recommendation
 
-1. **Data service layer for dashboard** (Supabase reads for events/invites/availability)
-2. **Persist planner drafts/events** (server action + validation)
-3. **Persist invite responses**
-4. **Profile + children CRUD (web)**
-5. **Mobile route/layout stabilization + auth wiring**
-6. **Mobile availability/profile data integration**
+**Recommendation adopted:**
+1. Promote a dedicated availability-first card as the first dashboard module.
+2. Support one-tap broadcast with optional detail enrichment.
+3. Add guardrails (recipient clarity + confirmation + cooldown).
+4. Keep planner/invite workflows, but demote them below availability action.
+
+This maximizes speed for the primary parent intent while reducing spam and accidental sends.
 
 ---
 
-## 5) Work completed in this execution cycle
+## 4) OKR mapping (explicit)
 
-- Replaced dashboard placeholder with a functional **MVP scheduling workspace**
-- Added quick planner form to create draft playdates in-session
-- Added actionable invite queue controls (accept/maybe/decline)
-- Added availability and suggested-overlap sections
-- Updated smoke tests to assert new dashboard behavior and prevent placeholder regressions
-- Added execution planning + task-board artifacts (`docs/`)
+| Objective | Key Result | Product tasks mapped |
+|---|---|---|
+| **O1: Make “We’re available” effortless** | **KR1:** availability CTA is first interactive module on dashboard | Availability-first hero card + CTA placement |
+|  | **KR2:** user can send baseline availability in one primary action path | One-tap broadcast flow |
+|  | **KR3:** optional detail enrichment does not block default send | Add-details prompt (optional form) |
+| **O2: Reduce spam/abuse risk** | **KR1:** clear recipient scope before send | Audience clarity with connected-family context |
+|  | **KR2:** prevent rapid repeated sends | Cooldown timer + disabled CTA |
+|  | **KR3:** reduce accidental broadcasts | Confirmation prompt before send |
+
+---
+
+## 5) Milestones + acceptance criteria
+
+## Milestone A — Availability-first surface (completed)
+**Acceptance criteria**
+- Dashboard first-view foregrounds “We’re available for a playdate”.
+- CTA is visible without scrolling in normal desktop viewport.
+- Landing copy aligns with availability-first value proposition.
+
+## Milestone B — Broadcast flow with optional details (completed)
+**Acceptance criteria**
+- One-tap default broadcast path is available.
+- Optional details prompt can be expanded and submitted.
+- Broadcast history shows sent entries and included details (when provided).
+
+## Milestone C — Guardrails (completed)
+**Acceptance criteria**
+- Audience clarity is explicit in UI.
+- Confirmation is required prior to send.
+- Cooldown blocks repeat sends and communicates remaining time.
+
+## Milestone D — Persisted availability broadcasts (next)
+**Acceptance criteria**
+- Broadcast records persist in Supabase and survive reload.
+- Server-side cooldown enforcement prevents client bypass.
+- Connected-family audience resolution performed server-side.
+
+---
+
+## 6) Next execution order
+
+1. Persist availability broadcasts via Supabase + RLS-safe server action
+2. Add delivery/notification fan-out for connected families
+3. Instrument analytics for time-to-broadcast and completion rates
+4. Continue persistent planner + invite response workflows
+

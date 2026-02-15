@@ -36,7 +36,8 @@ export default async function DashboardPage() {
         <header className="space-y-2">
           <h1 className="text-4xl font-semibold tracking-tight">Playdate Dashboard</h1>
           <p className="text-zinc-600 dark:text-zinc-400">
-            Family scheduling hub for invites, availability, and upcoming playdates.
+            Availability first: broadcast “We&apos;re available for a playdate” in one tap, then manage invites and
+            scheduling.
           </p>
         </header>
 
