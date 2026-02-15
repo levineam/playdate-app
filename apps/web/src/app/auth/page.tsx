@@ -1,10 +1,12 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 
 // Force dynamic rendering to avoid build-time Supabase initialization issues
 export const dynamic = 'force-dynamic'
 import { supabase } from '@/lib/supabase'
+import { hasSupabaseAuthConfig, isPreviewAuthBypassEnabled } from '@/lib/auth-mode'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,12 +17,12 @@ export default function AuthPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const isSupabaseConfigured = process.env.NEXT_PUBLIC_SUPABASE_URL && 
-    process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://placeholder.supabase.co'
+  const isSupabaseConfigured = hasSupabaseAuthConfig()
+  const canUsePreviewMode = !isSupabaseConfigured && isPreviewAuthBypassEnabled()
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!isSupabaseConfigured) {
       toast.error('Authentication is not configured. Please contact support.')
       return
@@ -81,11 +83,25 @@ export default function AuthPage() {
               {isLoading ? 'Sending...' : 'Send Magic Link'}
             </Button>
           </form>
+
           {!isSupabaseConfigured && (
-            <p id="auth-config-note" className="mt-3 text-sm text-amber-700 text-center" role="status">
-              Magic-link sign-in is temporarily unavailable in this preview environment.
-            </p>
+            <div className="mt-3 space-y-3">
+              <p id="auth-config-note" className="text-sm text-amber-700 text-center" role="status">
+                Magic-link sign-in is temporarily unavailable in this preview environment.
+              </p>
+
+              {canUsePreviewMode ? (
+                <Button asChild variant="secondary" className="w-full" data-testid="continue-preview-mode">
+                  <Link href="/auth/preview">Continue in preview mode</Link>
+                </Button>
+              ) : (
+                <p className="text-sm text-zinc-600 text-center">
+                  Preview mode is disabled for this deployment.
+                </p>
+              )}
+            </div>
           )}
+
           <p className="mt-4 text-sm text-gray-600 text-center">
             We&rsquo;ll send you a secure link to sign in. No passwords needed.
           </p>
